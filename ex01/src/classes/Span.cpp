@@ -33,7 +33,7 @@ Span & Span::operator=(const Span &op)
 void	Span::addNumber(int i)
 {
 	if (_storage.size() >= _size)
-		throw std::out_of_range("storage already full.");
+		throw Span::SpanFullException();
 	else
 		_storage.push_back(i);
 }
@@ -45,7 +45,7 @@ int		Span::shortestSpan(void)
 	int							result = 0;
 
 	if (_storage.size() <= 1)
-		throw std::logic_error("can't provide shortest pan : not enough numbers.");
+		throw Span::SpanTooShortException();
 	sort(tmp.begin(), tmp.end());
 	result = *(tmp.begin() + 1) - *tmp.begin();
 	for (it = tmp.begin() + 1; it != tmp.end() - 1; it++)
@@ -61,7 +61,31 @@ int		Span::longestSpan(void)
 	std::vector <int> tmp = _storage;
 
 	if (_storage.size() <= 1)
-		throw std::logic_error("can't provide shortest pan : not enough numbers.");
+		throw Span::SpanTooShortException();
 	sort(tmp.begin(), tmp.end());
 	return *(tmp.end() - 1) - *tmp.begin();
 }
+
+void Span::addNumberIteratorV(std::vector<int>::iterator start, std::vector<int>::iterator end)
+{
+	std::vector<int>	tmp(start, end);
+
+	if (tmp.size() > this->_storage.size() - _size)
+		throw Span::SpanNotEnoughSpaceException();
+	copy(tmp.begin(), tmp.end(), std::back_inserter(this->_storage));
+}
+
+const char* Span::SpanFullException::what() const throw()
+{
+	return "Exception: Span is full";
+};
+
+const char* Span::SpanTooShortException::what() const throw()
+{
+	return "Exception: Span too short";
+};
+
+const char* Span::SpanNotEnoughSpaceException::what() const throw()
+{
+	return "Exception: Span hasn't enough space";
+};
